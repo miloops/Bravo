@@ -1,4 +1,8 @@
 source "http://rubygems.org"
+
+platforms :ruby_19 do
+  gem "httpi", "0.7.9"
+end
 gem "savon"
 
 group :development do
