@@ -7,15 +7,15 @@ module Bravo
 
     def initialize(attrs = {})
       Bravo::AuthData.fetch
-      @client         = Savon::Client.new do |wsdl, http|
-                          wsdl.document = Bravo.service_url
-                          http.auth.ssl.cert_key_file = Bravo.pkey
-                          http.auth.ssl.cert_file = Bravo.cert
-                          http.auth.ssl.verify_mode = :fail_if_no_peer_cert
-                          http.read_timeout = 90
-                          http.open_timeout = 90
-                          http.headers = { "Accept-Encoding" => "gzip, deflate", "Connection" => "Keep-Alive" }
-                        end
+      @client         = Savon::Client.new do
+        wsdl.document = Bravo.service_url
+        http.auth.ssl.cert_key_file = Bravo.pkey
+        http.auth.ssl.cert_file = Bravo.cert
+        http.auth.ssl.verify_mode = :none
+        http.read_timeout = 90
+        http.open_timeout = 90
+        http.headers = { "Accept-Encoding" => "gzip, deflate", "Connection" => "Keep-Alive" }
+      end
 
       @body           = {"Auth" => Bravo.auth_hash}
       @net            = attrs[:net] || 0
