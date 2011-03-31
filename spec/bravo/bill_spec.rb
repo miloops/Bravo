@@ -102,5 +102,41 @@ describe "Bill" do
         response.cae.length.should == 14
       end
     end
+
+    it "should authorize nota de credito A" do
+      @bill.net = 10000
+      @bill.aliciva_id = 2
+      @bill.doc_num = "30710151543"
+      @bill.iva_cond = :nota_credito_a
+      @bill.concepto = "Servicios"
+
+      @bill.authorized?.should  == false
+      @bill.authorize.should    == true
+      @bill.authorized?.should  == true
+
+      response = @bill.response
+
+      response.length.should     == 28
+      response.cae.length.should == 14
+      response.cbte_tipo.should == "03"
+    end
+
+    it "should authorize nota de credito B" do
+      @bill.net = 10000
+      @bill.aliciva_id = 2
+      @bill.doc_num = "30710151543"
+      @bill.iva_cond = :nota_credito_b
+      @bill.concepto = "Servicios"
+
+      @bill.authorized?.should  == false
+      @bill.authorize.should    == true
+      @bill.authorized?.should  == true
+
+      response = @bill.response
+
+      response.length.should     == 28
+      response.cae.length.should == 14
+      response.cbte_tipo.should == "08"
+    end
   end
 end
