@@ -16,6 +16,24 @@ o
 
 en tu @Gemfile@
 
+Nota: Para que funcione el proceso de autenticación WSAA, chequear si el openssl instalado tiene compilado el módulo "cms" :
+<pre>
+openssl cms
+</pre>
+
+Si no dice "Invalid command", estamos bien. Caso contrario, descargar openssl y compilarlo con:
+<pre>
+./configure enable-cms
+make
+make install
+</pre>
+
+Nota 2: Ojo! Probablemente el openssl instalado originalmente sea el que se acceda por el path. Normalmente esto lo soluciona:
+
+<pre>
+whereis openssl
+ln -s /usr/local/ssl/bin/openssl RUTA_OBTENIDA_DEL_COMANDO_ANTERIOR
+</pre>
 
 h2. Configuraci&oacute;n
 
