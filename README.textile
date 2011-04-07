@@ -17,27 +17,25 @@ o
 en tu @Gemfile@
 
 Nota: Para que funcione el proceso de autenticación WSAA, chequear si el openssl instalado tiene compilado el módulo "cms" :
-<pre>
-openssl cms
-</pre>
+<pre>openssl cms</pre>
 
 Si no dice "Invalid command", estamos bien. Caso contrario, descargar openssl y compilarlo con:
-<pre>
-./configure enable-cms
+<pre>./configure enable-cms
 make
 make install
 </pre>
 
 Nota 2: Ojo! Probablemente el openssl instalado originalmente sea el que se acceda por el path. Normalmente esto lo soluciona:
 
-<pre>
-whereis openssl
+<pre>whereis openssl
 ln -s /usr/local/ssl/bin/openssl RUTA_OBTENIDA_DEL_COMANDO_ANTERIOR
 </pre>
 
 h2. Configuraci&oacute;n
 
 Los servicios de AFIP requieren la utilizaci&oacute;n del Web Service de Autorizaci&oacute;n y Autenticaci&oacute;n ("wsaa readme":http://www.afip.gov.ar/ws/WSAA/README.txt)
+
+Nota: El proceso de WSAA en Bravo está implementado con un script Bash. Esto es incompatible con un servidor Windows.
 
 Luego de cumplidos los pasos indicados en el readme, basta con configurar Bravo con la ruta a los archivos:
 
