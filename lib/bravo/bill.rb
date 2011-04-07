@@ -88,7 +88,7 @@ module Bravo
       detail["ImpTotal"]  = total
       detail["CbteDesde"] = detail["CbteHasta"] = next_bill_number
 
-      unless concepto == 0
+      unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
         detail.merge!({"FchServDesde" => fch_serv_desde || today,
                       "FchServHasta"  => fch_serv_hasta || today,
                       "FchVtoPago"    => due_date       || today})
