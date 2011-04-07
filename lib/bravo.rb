@@ -5,6 +5,10 @@ require "savon"
 require "bravo/core_ext/float"
 require "bravo/core_ext/hash"
 require "bravo/core_ext/string"
+
+require 'net/http'
+require 'net/https'
+             
 module Bravo
 
   class NullOrInvalidAttribute < StandardError; end
