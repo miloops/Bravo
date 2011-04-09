@@ -42,7 +42,9 @@ module Bravo
       :exento => "06",
       :responsable_monotributo => "06",
       :nota_credito_a => "03",
-      :nota_credito_b => "08"
+      :nota_credito_b => "08",
+      :nota_debito_a => "02",
+      :nota_debito_b => "07"
     }
   }
 end
