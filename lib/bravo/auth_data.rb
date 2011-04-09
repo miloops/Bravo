@@ -11,10 +11,12 @@ module Bravo
           raise "Archivo certificado no encontrado en #{Bravo.cert}"
         end
 
-        todays_datafile = "/tmp/bravo_#{Time.new.strftime('%d_%m_%Y')}.yml"
+        #todays_datafile = "/tmp/bravo_#{Time.new.strftime('%d_%m_%Y')}.yml"
+        todays_datafile = Dir.pwd + "/tmp/bravo_#{Time.new.strftime('%d_%m_%Y')}.yml"
         opts = "-u #{Bravo.auth_url}"
         opts += " -k #{Bravo.pkey}"
-        opts += " -c #{Bravo.cert}"
+        opts += " -c #{Bravo.cert}" 
+        opts += " -a #{todays_datafile}"         
 
         unless File.exists?(todays_datafile)
           %x(#{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts})
