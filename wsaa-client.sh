@@ -132,7 +132,7 @@ EOF
 
 function WriteYAML()
 {
-	cat <<EOF > /tmp/bravo_$(date +"%d_%m_%Y").yml
+	cat <<EOF > $DATAFILE
 token: '$TOKEN'
 sign: '$SIGN'
 EOF
@@ -147,7 +147,7 @@ EOF
 #[ $# -eq 0 ] && read -p "Service name: " SERVICE
 
 # Parse commandline arguments
-while getopts 'k:u:c:' OPTION
+while getopts 'k:u:c:a:' OPTION
 do
     case $OPTION in
     c)    CRT=$OPTARG
@@ -155,9 +155,13 @@ do
     k)    KEY=$OPTARG
         ;;
     u)    URL=$OPTARG
+        ;;             
+    a)    DATAFILE=$OPTARG
         ;;
     esac
-done
+done             
+echo "Using output file $DATAFILE"
+
 shift $(($OPTIND - 1))
 MakeTRA          # Generate TRA
 MakeCMS          # Generate CMS (TRA + signature + certificate)
