@@ -45,8 +45,7 @@ module Bravo
 
     def iva_sum
       @iva_sum = net * Bravo::ALIC_IVA[aliciva_id][1]
-      #@iva_sum.round_up_with_precision(2)
-      @iva_sum.round_with_precision(2) # Arregla error de redondeo !!
+      @iva_sum.round_up_with_precision(2)
     end
 
     def authorize
@@ -77,7 +76,7 @@ module Bravo
                         "ImpTrib"     => 0.00,
                         "Iva"         => {
                           "AlicIva" => {
-                            "Id" => "5",
+                            "Id" => BRAVO::ALIC_IVA[alicuota_iva][0],
                             "BaseImp" => net,
                             "Importe" => iva_sum}}}}}}
 
