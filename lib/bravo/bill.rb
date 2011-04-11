@@ -106,8 +106,8 @@ module Bravo
       resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
     end
 
-    def authorized?
-      !response.nil? && response.header_result == "A" && response.detail_result == "A"
+    def authorized?       
+        !response.nil? && response.header_result == "A" && response.detail_result == "A"
     end
 
     private
@@ -122,15 +122,25 @@ module Bravo
       # TODO: turn this into an all-purpose Response class
 
       result          = response[:fecae_solicitar_response][:fecae_solicitar_result]
-
+          
+      if not result[:fe_det_resp] or not result[:fe_cab_resp] then 
+      # Si no obtuvo respuesta ni cabecera ni detalle, evito hacer '[]' sobre algo indefinido.                        
+      # Ejemplo: Error con el token-sign de WSAA
+          keys, values = {
+                :errores => result[:errors],
+                :header_result => {:resultado => "X" },
+                :observaciones => nil
+          }.to_a.transpose
+          self.response = (defined?(Struct::ResponseMal) ? Struct::ResponseMal : Struct.new("ResponseMal", *keys)).new(*values)         
+          return
+      end       
+      
       response_header = result[:fe_cab_resp]
       response_detail = result[:fe_det_resp][:fecae_det_response]
 
       request_header  = body["FeCAEReq"]["FeCabReq"].underscore_keys.symbolize_keys
       request_detail  = body["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"].underscore_keys.symbolize_keys
-
       iva             = request_detail.delete(:iva)["AlicIva"].underscore_keys.symbolize_keys
-
       request_detail.merge!(iva) 
          
       if result[:errors] then
