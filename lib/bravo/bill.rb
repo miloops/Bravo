@@ -76,7 +76,7 @@ module Bravo
                         "ImpTrib"     => 0.00,
                         "Iva"         => {
                           "AlicIva" => {
-                            "Id" => Bravo::ALIC_IVA[alic_iva][0],
+                            "Id" => Bravo::ALIC_IVA[aliciva_id][0],
                             "BaseImp" => net,
                             "Importe" => iva_sum}}}}}}
 
