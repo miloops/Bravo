@@ -2,7 +2,7 @@ module Bravo
   class Bill
     attr_reader :client, :base_imp, :total
     attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda,
-                  :due_date, :aliciva_id, :fch_serv_desde, :fch_serv_hasta,
+                  :due_date, :aliciva_id, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
                   :body, :response
 
     def initialize(attrs = {})
@@ -60,7 +60,12 @@ module Bravo
     end
 
     def setup_bill
-      today = Time.new.strftime('%Y%m%d')
+      if fch_emision then
+        fecha_emision = fch_emision.strftime('%Y%m%d')
+      else
+        fecha_emision = Time.new.strftime('%Y%m%d') #today
+      end
+       
 
       fecaereq = {"FeCAEReq" => {
                     "FeCabReq" => Bravo::Bill.header(cbte_type),
@@ -68,7 +73,7 @@ module Bravo
                       "FECAEDetRequest" => {
                         "Concepto"    => Bravo::CONCEPTOS[concepto],
                         "DocTipo"     => Bravo::DOCUMENTOS[documento],
-                        "CbteFch"     => today,
+                        "CbteFch"     => fecha_emision,
                         "ImpTotConc"  => 0.00,
                         "MonId"       => Bravo::MONEDAS[moneda][:codigo],
                         "MonCotiz"    => exchange_rate,
