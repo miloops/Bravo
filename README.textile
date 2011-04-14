@@ -28,7 +28,8 @@ make install
 Nota 2: Ojo! Probablemente el openssl instalado originalmente sea el que se acceda por el path. Normalmente esto lo soluciona:
 
 <pre>whereis openssl
-ln -s /usr/local/ssl/bin/openssl RUTA_OBTENIDA_DEL_COMANDO_ANTERIOR
+mv SALIDA_DEL_WHEREIS SALIDA_DEL_WHEREIS_old
+ln -s /usr/local/ssl/bin/openssl SALIDA_DEL_WHEREIS
 </pre>
 
 h2. Configuraci&oacute;n
