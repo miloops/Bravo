@@ -40,7 +40,7 @@ module Bravo
     end
 
     def total
-      @total = net.zero? ? 0 : net + iva_sum
+      @total = net.zero? ? 0 : (net + iva_sum).round(2)
     end
 
     def iva_sum
