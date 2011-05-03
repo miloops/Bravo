@@ -30,6 +30,11 @@ module Bravo
   def log?
     Bravo.verbose || ENV["VERBOSE"]
   end
+  
+  def deleteToken
+      AuthData.deleteToken
+  end
+        
 
 end
 
