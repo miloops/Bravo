@@ -49,7 +49,7 @@ module Bravo
     end
 
     def authorize
-      setup_bill
+      return false unless setup_bill
       response = client.request :fecae_solicitar do |soap|
         soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
         soap.body = body
@@ -86,7 +86,12 @@ module Bravo
       detail["ImpNeto"]   = net.to_f
       detail["ImpIVA"]    = iva_sum
       detail["ImpTotal"]  = total
-      detail["CbteDesde"] = detail["CbteHasta"] = next_bill_number
+
+      if bill_number = next_bill_number
+        detail["CbteDesde"] = detail["CbteHasta"] = bill_number
+      else
+        return false
+      end
 
       unless concepto == 0
         detail.merge!({"FchServDesde" => fch_serv_desde || today,
@@ -95,15 +100,20 @@ module Bravo
       end
 
       body.merge!(fecaereq)
+      true
     end
 
     def next_bill_number
-      resp = client.request :fe_comp_ultimo_autorizado do
-        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
-        soap.body = {"Auth" => Bravo.auth_hash, "PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}
-      end
+      begin
+        resp = client.request :fe_comp_ultimo_autorizado do
+          soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
+          soap.body = {"Auth" => Bravo.auth_hash, "PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}
+        end
 
-      resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
+        resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
+      rescue Curl::Err::GotNothingError
+        nil
+      end
     end
 
     def authorized?
