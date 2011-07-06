@@ -146,6 +146,7 @@ describe "Bill" do
 
       response = @bill.response
       response.cae.length.should == 14
+      response.doc_num.size == 11
     end
   end
 end
