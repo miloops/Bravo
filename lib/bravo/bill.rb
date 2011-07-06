@@ -55,7 +55,7 @@ module Bravo
         soap.body = body
       end
 
-      setup_response(response.to_hash)
+      return false unless setup_response(response.to_hash)
       self.authorized?
     end
 
@@ -131,13 +131,20 @@ module Bravo
     def setup_response(response)
       # TODO: turn this into an all-purpose Response class
 
-      result          = response[:fecae_solicitar_response][:fecae_solicitar_result]
+      begin
+        result          = response[:fecae_solicitar_response][:fecae_solicitar_result]
 
-      response_header = result[:fe_cab_resp]
-      response_detail = result[:fe_det_resp][:fecae_det_response]
+        response_header = result[:fe_cab_resp]
+        response_detail = result[:fe_det_resp][:fecae_det_response]
 
-      request_header  = body["FeCAEReq"]["FeCabReq"].underscore_keys.symbolize_keys
-      request_detail  = body["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"].underscore_keys.symbolize_keys
+        request_header  = body["FeCAEReq"]["FeCabReq"].underscore_keys.symbolize_keys
+        request_detail  = body["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"].underscore_keys.symbolize_keys
+      rescue NoMethodError
+        if defined?(RAILS_DEFAULT_LOGGER) && logger = RAILS_DEFAULT_LOGGER
+          logger.error "[BRAVO] NoMethodError: Response #{response}"
+        end
+        return false
+      end
 
       iva             = request_detail.delete(:iva)["AlicIva"].underscore_keys.symbolize_keys
 
@@ -158,6 +165,7 @@ module Bravo
 
       keys, values  = response_hash.to_a.transpose
       self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      true
     end
   end
 end
