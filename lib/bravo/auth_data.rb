@@ -1,6 +1,4 @@
-require 'active_support'
 require 'active_support/core_ext/date_time/zones'
-require 'active_support/values/time_zone'
 
 module Bravo
   class AuthData
