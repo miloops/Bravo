@@ -63,7 +63,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<ruby-debug-base19>, ["= 0.11.24"])
       s.add_development_dependency(%q<ruby-debug19>, ["= 0.11.6"])
       s.add_development_dependency(%q<rspec>, ["~> 2.4.0"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.1"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
     else
@@ -72,7 +72,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<ruby-debug-base19>, ["= 0.11.24"])
       s.add_dependency(%q<ruby-debug19>, ["= 0.11.6"])
       s.add_dependency(%q<rspec>, ["~> 2.4.0"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_dependency(%q<bundler>, [">= 1.0.0"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.1"])
       s.add_dependency(%q<rcov>, [">= 0"])
     end
@@ -82,7 +82,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<ruby-debug-base19>, ["= 0.11.24"])
     s.add_dependency(%q<ruby-debug19>, ["= 0.11.6"])
     s.add_dependency(%q<rspec>, ["~> 2.4.0"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+    s.add_dependency(%q<bundler>, [">= 1.0.0"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.1"])
     s.add_dependency(%q<rcov>, [">= 0"])
   end

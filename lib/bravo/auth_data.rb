@@ -1,3 +1,7 @@
+require 'active_support'
+require 'active_support/core_ext/date_time/zones'
+require 'active_support/values/time_zone'
+
 module Bravo
   class AuthData
 
@@ -11,7 +15,7 @@ module Bravo
           raise "Archivo certificado no encontrado en #{Bravo.cert}"
         end
 
-        todays_datafile = "/tmp/bravo_#{Time.new.strftime('%d_%m_%Y')}.yml"
+        todays_datafile = "/tmp/bravo_#{Time.new.in_time_zone('Buenos Aires').strftime('%d_%m_%Y')}.yml"
         opts = "-u #{Bravo.auth_url}"
         opts += " -k #{Bravo.pkey}"
         opts += " -c #{Bravo.cert}"

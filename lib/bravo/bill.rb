@@ -60,7 +60,7 @@ module Bravo
     end
 
     def setup_bill
-      today = Time.new.strftime('%Y%m%d')
+      today = Time.new.in_time_zone('Buenos Aires').strftime('%Y%m%d')
 
       fecaereq = {"FeCAEReq" => {
                     "FeCabReq" => Bravo::Bill.header(cbte_type),
