@@ -138,5 +138,14 @@ describe "Bill" do
       response.cae.length.should == 14
       response.cbte_tipo.should == "08"
     end
+
+    it "should query for a bill given a type and a number" do
+      @bill.query_bill(:consumidor_final, 1)
+
+      @bill.authorized?.should  == true
+
+      response = @bill.response
+      response.cae.length.should == 14
+    end
   end
 end

@@ -3,6 +3,7 @@ source "http://rubygems.org"
 platforms :ruby_19 do
   gem "httpi", "0.7.9"
 end
+gem "curb"
 gem "savon"
 gem "active_support", ">= 3.0.0"
 gem "tzinfo"
