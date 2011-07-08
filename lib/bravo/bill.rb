@@ -110,7 +110,7 @@ module Bravo
         end
 
         resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
-      rescue Curl::Err::GotNothingError
+      rescue Curl::Err::GotNothingError, Curl::Err::TimeoutError
         nil
       end
     end
