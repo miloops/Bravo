@@ -1,3 +1,14 @@
+class BravoResponse < Struct.new("BravoResponse", :header_result, :authorized_on, :detail_result, :cae_due_date, :cae, :iva_id, :iva_importe, :moneda, :cotizacion, :iva_base_imp, :doc_num, :cant_reg, :cbte_tipo, :pto_vta, :concepto, :doc_tipo, :cbte_fch, :imp_tot_conc, :imp_op_ex, :imp_trib, :imp_neto, :imp_iva, :imp_total, :cbte_hasta, :cbte_desde, :fch_serv_desde, :fch_serv_hasta, :fch_vto_pago)
+  def initialize(*args)
+    arg = args.first
+    if arg.is_a? Hash
+      arg.each {|key,value| self.send(:"#{key}=", value)}
+    else
+      super
+    end
+  end
+end
+
 module Bravo
   class Bill
     attr_reader :client, :base_imp, :total
@@ -144,9 +155,7 @@ module Bravo
                        :doc_num       => result[:doc_nro]
       }
 
-      keys, values  = response_hash.to_a.transpose
-
-      self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      self.response = BravoResponse.new(response_hash)
     end
 
     private
@@ -158,8 +167,6 @@ module Bravo
     end
 
     def setup_response(response)
-      # TODO: turn this into an all-purpose Response class
-
       begin
         result          = response[:fecae_solicitar_response][:fecae_solicitar_result]
 
@@ -194,9 +201,7 @@ module Bravo
                        :doc_num       => request_detail.delete(:doc_nro)
       }.merge!(request_header).merge!(request_detail)
 
-      keys, values  = response_hash.to_a.transpose
-      self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
-      true
+      self.response = BravoResponse.new(response_hash)
     end
   end
 end
