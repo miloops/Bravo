@@ -12,6 +12,7 @@ module Bravo
 
   autoload :Authorizer,   "bravo/authorizer"
   autoload :AuthData,     "bravo/auth_data"
+  autoload :Response,     "bravo/response"
   autoload :Bill,         "bravo/bill"
   autoload :Constants,    "bravo/constants"
 
