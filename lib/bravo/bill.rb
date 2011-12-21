@@ -25,7 +25,7 @@ module Bravo
     end
 
     def cbte_type
-      Bravo::BILL_TYPE[Bravo.own_iva_cond][iva_cond] ||
+      Bravo::BILL_TYPE[iva_cond] ||
         raise(NullOrInvalidAttribute.new, "Please choose a valid document type.")
     end
 
@@ -120,7 +120,7 @@ module Bravo
     end
 
     def query_bill(iva_cond, cbte_number)
-      cbte_type = Bravo::BILL_TYPE[Bravo.own_iva_cond][iva_cond] ||
+      cbte_type = Bravo::BILL_TYPE[iva_cond] ||
         raise(NullOrInvalidAttribute.new, "Please choose a valid document type.")
 
       response = client.request :fe_comp_consultar do

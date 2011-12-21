@@ -84,7 +84,7 @@ describe "Bill" do
       detail["FchVtoPago"].should   == "20111210"
     end
 
-    Bravo::BILL_TYPE[Bravo.own_iva_cond].keys.each do |target_iva_cond|
+    Bravo::BILL_TYPE.keys.each do |target_iva_cond|
       it "should authorize a valid bill for #{target_iva_cond.to_s}" do
         @bill.net = 1000000
         @bill.aliciva_id = 2
