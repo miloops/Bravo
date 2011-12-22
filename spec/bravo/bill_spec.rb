@@ -32,7 +32,7 @@ describe "Bill" do
     end
 
     it "raise error on nil iva cond" do
-      @bill.iva_cond = 12
+      @bill.iva_cond = :asd
       expect{@bill.cbte_type}.to raise_error(Bravo::NullOrInvalidAttribute)
     end
 
