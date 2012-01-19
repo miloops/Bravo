@@ -19,7 +19,7 @@ module Bravo
         opts += " -a #{todays_datafile}"         
 
         unless File.exists?(todays_datafile)
-          %x(#{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts})
+          %x(bash #{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts})
         end
 
         @data = YAML.load_file(todays_datafile).each do |k, v|
