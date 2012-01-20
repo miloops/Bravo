@@ -2,8 +2,8 @@ module Bravo
   class Bill
     attr_reader :client, :base_imp, :total
     attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda,
-                  :due_date, :aliciva_id, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
-                  :body, :response
+                  :due_date, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
+                  :body, :response, :ivas
 
     def initialize(attrs = {})
       Bravo::AuthData.fetch
@@ -23,6 +23,7 @@ module Bravo
       self.moneda     = attrs[:moneda]    || Bravo.default_moneda
       self.iva_cond   = attrs[:iva_cond]
       self.concepto   = attrs[:concepto]  || Bravo.default_concepto
+      self.ivas = attrs[:ivas] || Array.new # [ 1, 100.00, 10.50 ], [ 2, 100.00, 21.00 ] 
     end
 
     def cbte_type
@@ -44,7 +45,12 @@ module Bravo
     end
 
     def iva_sum
-      @iva_sum = net * Bravo::ALIC_IVA[aliciva_id][1]
+      @iva_sum = 0.0
+      self.ivas.each{ |i|
+        # @iva_sum += i[1] * Bravo::ALIC_IVA[ i[0] ][1]
+        @iva_sum += i[2] 
+      }
+      #@iva_sum = net * Bravo::ALIC_IVA[TODO][1]
       #@iva_sum.round_up_with_precision(2)
       @iva_sum.round(2)
     end
@@ -67,6 +73,18 @@ module Bravo
         fecha_emision = Time.new.strftime('%Y%m%d') #today
       end
        
+      #hash_ivas = Hash.new
+      array_ivas = Array.new
+      self.ivas.each{ |i|
+          array_ivas << {
+          #hash_ivas.merge!( {
+        #   "AlicIva" => {
+              "Id" => Bravo::ALIC_IVA[ i[0] ][0],
+              "BaseImp" => i[1] ,
+              "Importe" => i[2] }
+         # }  #)
+      }
+      Rails.logger.debug "HASHIVAS -> " + array_ivas.to_yaml + "\n\n\n"
 
       fecaereq = {"FeCAEReq" => {
                     "FeCabReq" => Bravo::Bill.header(cbte_type),
@@ -80,11 +98,9 @@ module Bravo
                         "MonCotiz"    => exchange_rate,
                         "ImpOpEx"     => 0.00,
                         "ImpTrib"     => 0.00,
-                        "Iva"         => {
-                          "AlicIva" => {
-                            "Id" => Bravo::ALIC_IVA[aliciva_id][0],
-                            "BaseImp" => net,
-                            "Importe" => iva_sum}}}}}}
+                        "Iva"         => { "AlicIva" => array_ivas }  # array_ivas  #hash_ivas
+                        
+                    }}}}
 
       detail = fecaereq["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"]
 
@@ -146,8 +162,11 @@ module Bravo
 
       request_header  = body["FeCAEReq"]["FeCabReq"].underscore_keys.symbolize_keys
       request_detail  = body["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"].underscore_keys.symbolize_keys
-      iva             = request_detail.delete(:iva)["AlicIva"].underscore_keys.symbolize_keys
-      request_detail.merge!(iva) 
+      
+      # Esto no funciona desde que se soportan múltiples alícuotas de iva simultáneas
+      # FIX ? TO-DO
+      # iva             = request_detail.delete(:iva)["AlicIva"].underscore_keys.symbolize_keys
+      # request_detail.merge!(iva) 
          
       if result[:errors] then
           response_detail.merge!( result[:errors] )     
