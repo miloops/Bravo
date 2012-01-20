@@ -50,7 +50,8 @@ describe "Bill" do
       @bill.iva_cond = :responsable_inscripto
       @bill.moneda = :peso
       @bill.net = 100.89
-      @bill.aliciva_id = 2
+
+      @bill.ivas << [ 2, 100.89 , 21.18 ]      
 
       @bill.iva_sum.should be_within(0.05).of(21.18)
       @bill.total.should be_within(0.05).of(122.07)
@@ -58,7 +59,9 @@ describe "Bill" do
 
     it "should use give due date an service dates, or todays date" do
       @bill.net = 100
-      @bill.aliciva_id = 2
+
+      @bill.ivas << [ 2, 100 , 21 ]      
+      
       @bill.doc_num = "30710151543"
       @bill.iva_cond = :responsable_inscripto
       @bill.concepto = "Servicios"
@@ -87,7 +90,10 @@ describe "Bill" do
     Bravo::BILL_TYPE[Bravo.own_iva_cond].keys.each do |target_iva_cond|
       it "should authorize a valid bill for #{target_iva_cond.to_s}" do
         @bill.net = 1000000
-        @bill.aliciva_id = 2
+        
+        @bill.ivas << [ 2, 1000000 , 210000 ]      
+
+        
         @bill.doc_num = "30710151543"
         @bill.iva_cond = target_iva_cond
         @bill.concepto = "Servicios"
@@ -105,7 +111,9 @@ describe "Bill" do
 
     it "should authorize nota de credito A" do
       @bill.net = 10000
-      @bill.aliciva_id = 2
+      
+      @bill.ivas << [ 2, 10000 , 2100 ]      
+      
       @bill.doc_num = "30710151543"
       @bill.iva_cond = :nota_credito_a
       @bill.concepto = "Servicios"
@@ -123,7 +131,9 @@ describe "Bill" do
 
     it "should authorize nota de credito B" do
       @bill.net = 10000
-      @bill.aliciva_id = 2
+      
+      @bill.ivas << [ 2, 10000 , 2100 ]      
+      
       @bill.doc_num = "30710151543"
       @bill.iva_cond = :nota_credito_b
       @bill.concepto = "Servicios"
