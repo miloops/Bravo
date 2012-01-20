@@ -47,8 +47,8 @@ module Bravo
     def iva_sum
       @iva_sum = 0.0
       self.ivas.each{ |i|
-        # @iva_sum += i[1] * Bravo::ALIC_IVA[ i[0] ][1]
-        @iva_sum += i[2] 
+        @iva_sum += i[1] * Bravo::ALIC_IVA[ i[0] ][1]
+        # @iva_sum += i[2] 
       }
       #@iva_sum = net * Bravo::ALIC_IVA[TODO][1]
       #@iva_sum.round_up_with_precision(2)
