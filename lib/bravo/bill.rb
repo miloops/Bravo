@@ -73,18 +73,14 @@ module Bravo
         fecha_emision = Time.new.strftime('%Y%m%d') #today
       end
        
-      #hash_ivas = Hash.new
+
       array_ivas = Array.new
       self.ivas.each{ |i|
           array_ivas << {
-          #hash_ivas.merge!( {
-        #   "AlicIva" => {
               "Id" => Bravo::ALIC_IVA[ i[0] ][0],
               "BaseImp" => i[1] ,
               "Importe" => i[2] }
-         # }  #)
       }
-      Rails.logger.debug "HASHIVAS -> " + array_ivas.to_yaml + "\n\n\n"
 
       fecaereq = {"FeCAEReq" => {
                     "FeCabReq" => Bravo::Bill.header(cbte_type),
@@ -98,8 +94,7 @@ module Bravo
                         "MonCotiz"    => exchange_rate,
                         "ImpOpEx"     => 0.00,
                         "ImpTrib"     => 0.00,
-                        "Iva"         => { "AlicIva" => array_ivas }  # array_ivas  #hash_ivas
-                        
+                        "Iva"         => { "AlicIva" => array_ivas }                          
                     }}}}
 
       detail = fecaereq["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"]
