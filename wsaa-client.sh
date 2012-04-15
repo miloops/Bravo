@@ -15,6 +15,7 @@ TAFN="TA.xml"    # file name of the output file
 #
 # No further modifications should be needed below this line
 #==============================================================================
+
 function MakeTRA()
 #
 # Generate the XML containing the Access Ticket Request (TRA)
@@ -44,11 +45,12 @@ function MakeCMS()
 # Generate de CMS container (TRA + sign + certificate)
 #
 {
+  OPENSSL=$(which openssl)
   CMS=$(
     echo "$TRA" |
-    /usr/local/ssl/bin/openssl cms -sign -in /dev/stdin -signer $CRT -inkey $KEY -nodetach \
+    $OPENSSL cms -sign -in /dev/stdin -signer $CRT -inkey $KEY -nodetach \
             -outform der |
-    /usr/local/ssl/bin/openssl base64 -e
+    $OPENSSL base64 -e
   )
 }
 #------------------------------------------------------------------------------
@@ -137,6 +139,8 @@ token: '$TOKEN'
 sign: '$SIGN'
 EOF
 }
+
+
 #------------------------------------------------------------------------------
 #
 # MAIN program
