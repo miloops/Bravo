@@ -3,7 +3,7 @@ source "http://rubygems.org"
 platforms :ruby_19 do
   gem "httpi", "0.7.9"
 end
-gem "savon"
+gem "savon", "0.9.7"
 
 group :development do
   platforms :ruby_18 do
