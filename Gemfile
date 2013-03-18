@@ -11,6 +11,7 @@ gem "tzinfo"
 group :development do
   platforms :ruby_18 do
     gem "ruby-debug"
+    gem "rcov", ">= 0"
   end
   platforms :ruby_19 do
     gem 'ruby-debug-base19', "0.11.24"
@@ -19,6 +20,5 @@ group :development do
   gem "rspec", "~> 2.4.0"
   gem "bundler", ">= 1.0.0"
   gem "jeweler", "~> 1.6.3"
-  gem "rcov", ">= 0"
 end
 
