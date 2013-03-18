@@ -1,7 +1,6 @@
 require "bundler/setup"
 require "bravo/version"
 require "bravo/constants"
-require "curb"
 require "savon"
 require "bravo/core_ext/float"
 require "bravo/core_ext/hash"
