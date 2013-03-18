@@ -19,7 +19,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib", "bin"]
 
   gem.add_runtime_dependency(%q<savon>, ["~> 0.9"])
-  gem.add_runtime_dependency(%q<thor>, ["~> 0.16.0"])
   gem.add_runtime_dependency(%q<active_support>, [">= 3.0.0"])
   gem.add_runtime_dependency(%q<tzinfo>, ["> 0"])
   gem.add_development_dependency(%q<rspec>, ["~> 2.12.0"])
