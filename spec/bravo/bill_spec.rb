@@ -36,11 +36,6 @@ describe "Bill" do
       expect{@bill.cbte_type}.to raise_error(Bravo::NullOrInvalidAttribute)
     end
 
-    it "should fetch non Peso currency's exchange rate" do
-      @bill.moneda = :dolar
-      @bill.exchange_rate.to_i.should be > 0
-    end
-
     it "should return 1 for Peso currency" do
       @bill.moneda = :peso
       @bill.exchange_rate.should == 1
