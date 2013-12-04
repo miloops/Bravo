@@ -23,9 +23,9 @@ function MakeTRA()
 {
 #  FROM=$(date -j -f "%a %b %d %T %Z %Y" "`date -v0H -v0M -v0S`" "+%s")
 #  TO=$(date -j -f "%a %b %d %T %Z %Y" "`date -v23H -v59M -v59S`" "+%s")
-	FROM=$(date "+%Y-%m-%dT00:00:00-03:00")
-	TO=$(date "+%Y-%m-%dT23:59:59-03:00")
-  ID=$(date "+%s")
+	FROM=$(TZ=America/Buenos_Aires date "+%Y-%m-%dT00:00:00-03:00")
+	TO=$(TZ=America/Buenos_Aires date "+%Y-%m-%dT23:59:59-03:00")
+  ID=$(TZ=America/Buenos_Aires date "+%s")
   TRA=$(cat <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <loginTicketRequest version="1.0">
@@ -134,7 +134,7 @@ EOF
 
 function WriteYAML()
 {
-    cat <<EOF > /tmp/bravo_${CUIT}_$(date +"%d_%m_%Y").yml
+    cat <<EOF > /tmp/bravo_${CUIT}_$(TZ=America/Buenos_Aires date +"%d_%m_%Y").yml
 token: '$TOKEN'
 sign: '$SIGN'
 EOF
