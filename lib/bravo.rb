@@ -27,10 +27,4 @@ module Bravo
   def log?
     Bravo.verbose || ENV["VERBOSE"]
   end
-
-end
-
-Savon.configure do |config|
-  config.log = Bravo.log?
-  config.log_level = :debug
 end

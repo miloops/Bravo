@@ -1,5 +1,7 @@
 module Bravo
   class Bill
+    require 'curb'
+
     attr_reader :client, :base_imp, :total
     attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda,
       :due_date, :aliciva_id, :fch_serv_desde, :fch_serv_hasta,
@@ -7,16 +9,24 @@ module Bravo
 
     def initialize(attrs = {})
       Bravo::AuthData.fetch
-      @client = Savon::Client.new do
-        wsdl.document = Bravo.service_url
-        http.auth.ssl.cert_key_file = Bravo.pkey
-        http.auth.ssl.cert_file = Bravo.cert
-        http.auth.ssl.verify_mode = :none
-        http.read_timeout = 90
-        http.open_timeout = 90
-        http.headers = { "Accept-Encoding" => "gzip, deflate", "Connection" => "Keep-Alive" }
-      end
-      @body           = {"Auth" => Bravo.auth_hash}
+
+      @client = Savon.client(
+        env_namespace: :soap,
+        wsdl: Bravo.service_url,
+        ssl_cert_key_file: Bravo.pkey,
+        ssl_cert_file: Bravo.cert,
+        ssl_verify_mode: :none,
+        read_timeout: 90,
+        open_timeout: 90,
+        headers: {
+          'Accept-Encoding' => 'gzip, deflate', 'Connection' => 'Keep-Alive'
+        },
+        log: Bravo.log?,
+        log_level: :debug,
+        namespaces: {xmlns: 'http://ar.gov.afip.dif.FEV1/'}
+      )
+
+      @body           = {'Auth' => Bravo.auth_hash}
       @net            = attrs[:net] || 0
       self.documento  = attrs[:documento] || Bravo.default_documento
       self.moneda     = attrs[:moneda]    || Bravo.default_moneda
@@ -31,9 +41,8 @@ module Bravo
 
     def exchange_rate
       return 1 if moneda == :peso
-      response = client.request :fe_param_get_cotizacion do
-        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
-        soap.body = body.merge!({"MonId" => Bravo::MONEDAS[moneda][:codigo]})
+      response = client.call :fe_param_get_cotizacion do
+        message body.merge!({"MonId" => Bravo::MONEDAS[moneda][:codigo]})
       end
       response.to_hash[:fe_param_get_cotizacion_response][:fe_param_get_cotizacion_result][:result_get][:mon_cotiz].to_f
     end
@@ -49,9 +58,9 @@ module Bravo
 
     def authorize
       return false unless setup_bill
-      response = client.request :fecae_solicitar do |soap|
-        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
-        soap.body = body
+
+      response = client.call(:fecae_solicitar) do |soap|
+        soap.message(body)
       end
 
       return false unless setup_response(response.to_hash)
@@ -61,52 +70,59 @@ module Bravo
     def setup_bill
       today = Time.new.in_time_zone('Buenos Aires').strftime('%Y%m%d')
 
-      fecaereq = {"FeCAEReq" => {
-        "FeCabReq" => Bravo::Bill.header(cbte_type),
-        "FeDetReq" => {
-        "FECAEDetRequest" => {
-        "Concepto"    => Bravo::CONCEPTOS[concepto],
-        "DocTipo"     => Bravo::DOCUMENTOS[documento],
-        "CbteFch"     => today,
-        "ImpTotConc"  => 0.00,
-        "MonId"       => Bravo::MONEDAS[moneda][:codigo],
-        "MonCotiz"    => exchange_rate,
-        "ImpOpEx"     => 0.00,
-        "ImpTrib"     => 0.00,
-        "Iva"         => {
-        "AlicIva" => {
-        "Id" => "5",
-        "BaseImp" => net,
-        "Importe" => iva_sum}}}}}}
+      fecaereq = {
+        'FeCAEReq' => {
+          'FeCabReq' => Bravo::Bill.header(cbte_type),
+          'FeDetReq' => {
+            'FECAEDetRequest' => {
+              'Concepto'    => Bravo::CONCEPTOS[concepto],
+              'DocTipo'     => Bravo::DOCUMENTOS[documento],
+              'CbteFch'     => today,
+              'ImpTotConc'  => 0.00,
+              'MonId'       => Bravo::MONEDAS[moneda][:codigo],
+              'MonCotiz'    => exchange_rate,
+              'ImpOpEx'     => 0.00,
+              'ImpTrib'     => 0.00,
+              'Iva'         => {
+                'AlicIva' => {
+                  'Id' => '5',
+                  'BaseImp' => net,
+                  'Importe' => iva_sum
+                }
+              }
+            }
+          }
+        }
+      }
 
-        detail = fecaereq["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"]
+      detail = fecaereq['FeCAEReq']['FeDetReq']['FECAEDetRequest']
 
-        detail["DocNro"]    = doc_num
-        detail["ImpNeto"]   = net.to_f
-        detail["ImpIVA"]    = iva_sum
-        detail["ImpTotal"]  = total
+      detail['DocNro']    = self.doc_num
+      detail['ImpNeto']   = self.net.to_f
+      detail['ImpIVA']    = self.iva_sum
+      detail['ImpTotal']  = self.total
 
-        if bill_number = next_bill_number
-          detail["CbteDesde"] = detail["CbteHasta"] = bill_number
-        else
-          return false
-        end
+      if bill_number = next_bill_number
+        detail['CbteDesde'] = detail['CbteHasta'] = bill_number
+      else
+        return false
+      end
 
-        unless concepto == 0
-          detail.merge!({"FchServDesde" => fch_serv_desde || today,
-                         "FchServHasta"  => fch_serv_hasta || today,
-                         "FchVtoPago"    => due_date       || today})
-        end
+      unless concepto == 0
+        detail.merge!({'FchServDesde' => fch_serv_desde || today,
+                       'FchServHasta'  => fch_serv_hasta || today,
+                       'FchVtoPago'    => due_date       || today})
+      end
 
-        body.merge!(fecaereq)
-        true
+
+      body.merge!(fecaereq)
+      true
     end
 
     def next_bill_number
       begin
-        resp = client.request :fe_comp_ultimo_autorizado do
-          soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
-          soap.body = {"Auth" => Bravo.auth_hash, "PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}
+        resp = client.call :fe_comp_ultimo_autorizado do |soap|
+          soap.message(body.merge({"PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}))
         end
 
         resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
@@ -119,29 +135,33 @@ module Bravo
       !response.nil? && response.header_result == "A" && response.detail_result == "A"
     end
 
-    def query_bill(iva_cond, cbte_number)
-      cbte_type = Bravo::BILL_TYPE[iva_cond] ||
-        raise(NullOrInvalidAttribute.new, "Please choose a valid document type.")
+    def query_bill(iva_condition, cbte_number)
+      cbte_type_selected = Bravo::BILL_TYPE[iva_condition] ||
+        raise(NullOrInvalidAttribute.new, 'Please choose a valid document type.')
 
-      response = client.request :fe_comp_consultar do
-        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
-        soap.body = {"Auth" => Bravo.auth_hash,
-                     "FeCompConsReq" => { "PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type, "CbteNro" => cbte_number}}
+      response = client.call :fe_comp_consultar do |soap|
+        soap.message(body.merge({
+          'FeCompConsReq' => {
+            'PtoVta'    => Bravo.sale_point,
+            'CbteTipo'  => cbte_type_selected,
+            'CbteNro'   => cbte_number
+          }
+        }))
       end
 
       result = response.to_hash[:fe_comp_consultar_response][:fe_comp_consultar_result][:result_get]
 
-      response_hash = {:header_result => result[:resultado],
-                       :authorized_on => result[:fch_proceso],
-                       :detail_result => result[:resultado],
-                       :cae_due_date  => result[:fch_vto],
-                       :cae           => result[:cod_autorizacion],
-                       :iva_id        => result[:iva][:alic_iva][:id],
-                       :iva_importe   => result[:iva][:alic_iva][:importe],
-                       :moneda        => result[:mon_id],
-                       :cotizacion    => result[:mon_cotiz],
-                       :iva_base_imp  => result[:iva][:alic_iva][:base_imp],
-                       :doc_num       => result[:doc_nro]
+      response_hash = {header_result: result[:resultado],
+                       authorized_on: result[:fch_proceso],
+                       detail_result: result[:resultado],
+                       cae_due_date: result[:fch_vto],
+                       cae: result[:cod_autorizacion],
+                       iva_id: result[:iva][:alic_iva][:id],
+                       iva_importe: result[:iva][:alic_iva][:importe],
+                       moneda: result[:mon_id],
+                       cotizacion: result[:mon_cotiz],
+                       iva_base_imp: result[:iva][:alic_iva][:base_imp],
+                       doc_num: result[:doc_nro]
       }
 
       self.response = Response.new(response_hash)
@@ -177,17 +197,18 @@ module Bravo
 
       request_detail.merge!(iva)
 
-      response_hash = {:header_result => response_header.delete(:resultado),
-                       :authorized_on => response_header.delete(:fch_proceso),
-                       :detail_result => response_detail.delete(:resultado),
-                       :cae_due_date  => response_detail.delete(:cae_fch_vto),
-                       :cae           => response_detail.delete(:cae),
-                       :iva_id        => request_detail.delete(:id),
-                       :iva_importe   => request_detail.delete(:importe),
-                       :moneda        => request_detail.delete(:mon_id),
-                       :cotizacion    => request_detail.delete(:mon_cotiz),
-                       :iva_base_imp  => request_detail.delete(:base_imp),
-                       :doc_num       => request_detail.delete(:doc_nro)
+      response_hash = {
+        header_result: response_header.delete(:resultado),
+        authorized_on: response_header.delete(:fch_proceso),
+        detail_result: response_detail.delete(:resultado),
+        cae_due_date:  response_detail.delete(:cae_fch_vto),
+        cae:           response_detail.delete(:cae),
+        iva_id:        request_detail.delete(:id),
+        iva_importe:   request_detail.delete(:importe),
+        moneda:        request_detail.delete(:mon_id),
+        cotizacion:    request_detail.delete(:mon_cotiz),
+        iva_base_imp:  request_detail.delete(:base_imp),
+        doc_num:       request_detail.delete(:doc_nro)
       }.merge!(request_header).merge!(request_detail)
 
       self.response = Response.new(response_hash)
