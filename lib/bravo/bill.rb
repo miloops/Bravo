@@ -1,7 +1,5 @@
 module Bravo
   class Bill
-    require 'curb'
-
     attr_reader :client, :base_imp, :total
     attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda,
       :due_date, :aliciva_id, :fch_serv_desde, :fch_serv_hasta,
@@ -120,15 +118,11 @@ module Bravo
     end
 
     def next_bill_number
-      begin
-        resp = client.call :fe_comp_ultimo_autorizado do |soap|
-          soap.message(body.merge({"PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}))
-        end
-
-        resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
-      rescue Curl::Err::GotNothingError, Curl::Err::TimeoutError
-        nil
+      resp = client.call :fe_comp_ultimo_autorizado do |soap|
+        soap.message(body.merge({"PtoVta" => Bravo.sale_point, "CbteTipo" => cbte_type}))
       end
+
+      resp.to_hash[:fe_comp_ultimo_autorizado_response][:fe_comp_ultimo_autorizado_result][:cbte_nro].to_i + 1
     end
 
     def authorized?
