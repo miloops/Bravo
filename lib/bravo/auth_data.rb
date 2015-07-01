@@ -19,7 +19,7 @@ module Bravo
         opts += " -a #{todays_datafile}"         
 
         unless File.exists?(todays_datafile)
-          command = #{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts}
+          command = "#{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts}"
           Rails.logger.warn "Haciendo request a WSAA: " + command
           %x(bash #{command} )
         end
