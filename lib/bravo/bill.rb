@@ -107,7 +107,7 @@ module Bravo
       detail["DocNro"]    = doc_num
       detail["ImpNeto"]   = net.to_f
       detail["ImpIVA"]    = iva_sum
-      detail["ImpTotal"]  = total
+      detail["ImpTotal"]  = total.round(2)
       detail["CbteDesde"] = detail["CbteHasta"] = next_bill_number
 
       unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
