@@ -93,9 +93,14 @@ module Bravo
                         "MonId"       => Bravo::MONEDAS[moneda][:codigo],
                         "MonCotiz"    => exchange_rate,
                         "ImpOpEx"     => 0.00,
-                        "ImpTrib"     => 0.00,
-                        "Iva"         => { "AlicIva" => array_ivas }                          
+                        "ImpTrib"     => 0.00
                     }}}}
+
+      if Bravo.own_iva_cond == :responsable_inscripto
+        fecaereq["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"]["Iva"] = { "AlicIva" => array_ivas }
+      elsif Bravo.own_iva_cond == :responsable_monotributo and array_ivas.any?
+        raise "No incluir montos iva al facturar como Responsable Monotributo"
+      end
 
       detail = fecaereq["FeCAEReq"]["FeDetReq"]["FECAEDetRequest"]
 
