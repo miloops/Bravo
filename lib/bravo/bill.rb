@@ -3,7 +3,7 @@ module Bravo
     attr_reader :client, :base_imp, :total
     attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda,
                   :due_date, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
-                  :body, :response, :ivas
+                  :body, :response, :ivas, :related_invoice_data
 
     def initialize(attrs = {})
       Bravo::AuthData.fetch
@@ -109,6 +109,18 @@ module Bravo
       detail["ImpIVA"]    = iva_sum
       detail["ImpTotal"]  = total.round(2)
       detail["CbteDesde"] = detail["CbteHasta"] = next_bill_number
+
+      if related_invoice_data
+        detail["CbtesAsoc"] = {
+          "CbteAsoc" => [{
+            "Tipo" => related_invoice_data[:type],
+            "PtoVta" => related_invoice_data[:sale_point],
+            "Nro" => related_invoice_data[:number],
+            "Cuit" => related_invoice_data[:cuit],
+            "CbteFch" => related_invoice_data[:date]
+          }]
+        }
+      end
 
       unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
         detail.merge!({"FchServDesde" => fch_serv_desde || today,
