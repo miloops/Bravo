@@ -51,10 +51,8 @@ module Bravo
       consumidor_final: "11",
       exento: "11",
       responsable_monotributo: "11",
-      nota_credito_a: "11",
-      nota_credito_b: "11",
-      nota_debito_a: "11",
-      nota_debito_b: "11"
+      nota_credito_c: "13",
+      nota_debito_c: "12"
     }
   }
 end
