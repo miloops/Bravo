@@ -34,7 +34,11 @@ module Bravo
   def deleteToken
       AuthData.deleteToken
   end
-        
+
+  def token_modified_at
+      AuthData.token_modified_at
+  end
+
 
 end
 

@@ -11,12 +11,11 @@ module Bravo
           raise "Archivo certificado no encontrado en #{Bravo.cert}"
         end
 
-        #todays_datafile = "/tmp/bravo_#{Time.new.strftime('%d_%m_%Y')}.yml"
-        todays_datafile = Dir.pwd + "/tmp/bravo_#{Bravo.cuit}_#{Time.new.strftime('%d_%m_%Y')}.yml"
         opts = "-u #{Bravo.auth_url}"
         opts += " -k #{Bravo.pkey}"
         opts += " -c #{Bravo.cert}" 
         opts += " -a #{todays_datafile}"         
+
 
         unless File.exists?(todays_datafile)
           command = "#{File.dirname(__FILE__)}/../../wsaa-client.sh #{opts}"
@@ -30,9 +29,17 @@ module Bravo
       end
 
       def deleteToken
-          todays_datafile = Dir.pwd + "/tmp/bravo_#{Bravo.cuit}_#{Time.new.strftime('%d_%m_%Y')}.yml"
           %x(rm #{todays_datafile})
-      end  
+      end
+      
+      def token_modified_at
+        File.exist?(todays_datafile) ? File.mtime(todays_datafile) : nil
+      end
+
+      def todays_datafile
+        Dir.pwd + "/tmp/bravo_#{Bravo.cuit}_#{Time.new.strftime('%d_%m_%Y')}.yml"
+      end
+
     end
   end
 end
