@@ -144,6 +144,25 @@ module Bravo
         !response.nil? && response.header_result == "A" && response.detail_result == "A"
     end
 
+    def search(cbte_type, cbte_nro, pto_vta)
+      fecompconsultarreq = {
+        "FeCompConsReq": {
+          "CbteTipo": cbte_type,
+          "CbteNro": cbte_nro,
+          "PtoVta": pto_vta
+        }
+      }
+      body.merge!(fecompconsultarreq)
+
+      response = client.request("FECompConsultar", soap_action: "http://ar.gov.afip.dif.FEV1/FECompConsultar") do |soap|
+        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
+        soap.body = body
+      end
+      puts "FECompConsultar --> "
+      puts body
+      return response.to_json
+    end
+
     private
 
     class << self
