@@ -146,10 +146,10 @@ module Bravo
 
     def search(cbte_type, cbte_nro, pto_vta)
       fecompconsultarreq = {
-        "FeCompConsReq": {
-          "CbteTipo": cbte_type,
-          "CbteNro": cbte_nro,
-          "PtoVta": pto_vta
+        "FeCompConsReq" => {
+          "CbteTipo" => cbte_type,
+          "CbteNro" => cbte_nro,
+          "PtoVta" => pto_vta
         }
       }
       body.merge!(fecompconsultarreq)
