@@ -43,6 +43,6 @@ module Bravo
 end
 
 Savon.configure do |config|
-  config.log = Bravo.log?
+  config.log = true # Bravo.log?
   config.log_level = :debug
 end
