@@ -225,7 +225,10 @@ module Bravo
                        }.merge!(request_header).merge!(request_detail)
 
       keys, values  = response_hash.to_a.transpose
-      self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      
+      #self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      # Even if it throws a warning, it avoids some parsing errors.
+      self.response = Struct.new("Response", *keys).new(*values)
     end
   end
 end
