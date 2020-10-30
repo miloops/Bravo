@@ -15,6 +15,11 @@ module Bravo
         http.read_timeout = 90
         http.open_timeout = 90
         http.headers = { "Accept-Encoding" => "gzip, deflate", "Connection" => "Keep-Alive" }
+
+        # Insist because this config doesn't stick from bravo.rb for some reason
+        config.logger = Rails.logger
+        config.log = true
+        config.log_level = :debug
       end
 
       @body           = {"Auth" => Bravo.auth_hash}
