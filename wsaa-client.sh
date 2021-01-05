@@ -109,8 +109,14 @@ function ParseTA()
 if [ "$TOKEN" == "" ]
   then
     echo "ERROR: "
-    echo "$(echo "$RESPONSE" | xmllint --format - | grep faultstring)"
-    exit 1
+    ERROR=$(
+      echo "$RESPONSE" |
+      xmllint --format - | 
+      grep faultstring | 
+      xargs
+    )
+    echo $ERROR
+    #exit 1
 fi
 }
 #------------------------------------------------------------------------------
@@ -132,10 +138,18 @@ EOF
 
 function WriteYAML()
 {
-	cat <<EOF > $DATAFILE
+cat <<EOF > $DATAFILE
 token: '$TOKEN'
 sign: '$SIGN'
 EOF
+
+if [ "$TOKEN" == "" ]
+  then
+cat <<EOF >> $DATAFILE
+error: '$ERROR'
+EOF
+fi
+
 }
 #------------------------------------------------------------------------------
 #
