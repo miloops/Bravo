@@ -15,6 +15,11 @@ module Bravo
         http.read_timeout = 90
         http.open_timeout = 90
         http.headers = { "Accept-Encoding" => "gzip, deflate", "Connection" => "Keep-Alive" }
+
+        # Insist because this config doesn't stick from bravo.rb for some reason
+        config.logger = Rails.logger
+        config.log = true
+        config.log_level = :debug
       end
 
       @body           = {"Auth" => Bravo.auth_hash}
@@ -144,6 +149,25 @@ module Bravo
         !response.nil? && response.header_result == "A" && response.detail_result == "A"
     end
 
+    def search(cbte_type, cbte_nro, pto_vta)
+      fecompconsultarreq = {
+        "FeCompConsReq" => {
+          "CbteTipo" => cbte_type,
+          "CbteNro" => cbte_nro,
+          "PtoVta" => pto_vta
+        }
+      }
+      body.merge!(fecompconsultarreq)
+
+      response = client.request("FECompConsultar", soap_action: "http://ar.gov.afip.dif.FEV1/FECompConsultar") do |soap|
+        soap.namespaces["xmlns"] = "http://ar.gov.afip.dif.FEV1/"
+        soap.body = body
+      end
+      puts "FECompConsultar --> "
+      puts body
+      return response.to_json
+    end
+
     private
 
     class << self
@@ -201,7 +225,10 @@ module Bravo
                        }.merge!(request_header).merge!(request_detail)
 
       keys, values  = response_hash.to_a.transpose
-      self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      
+      #self.response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+      # Even if it throws a warning, it avoids some parsing errors.
+      self.response = Struct.new("Response", *keys).new(*values)
     end
   end
 end
