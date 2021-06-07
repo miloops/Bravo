@@ -23,7 +23,7 @@ module Bravo
         end
 
         @data = YAML.load_file(todays_datafile).each do |k, v|
-          Bravo.const_set(k.to_s.upcase, v) unless Bravo.const_defined?(k.to_s.upcase)
+          Bravo.const_set(k.to_s.upcase, v) #unless Bravo.const_defined?(k.to_s.upcase)
         end
 
         error_msg = nil
